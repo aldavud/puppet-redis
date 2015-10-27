@@ -32,17 +32,6 @@ class redis (
   # Install the redis package
   ensure_packages(['redis'], { 'ensure' => $version })
 
-  # Define the data directory with proper ownership if provided
-  if ! empty($config['dir']) {
-    file { $config['dir']:
-      ensure  => directory,
-      owner   => 'redis',
-      group   => 'redis',
-      require => Package['redis'],
-      before  => Exec['configure_redis'],
-    }
-  }
-
   # Declare /etc/redis.conf so that we can manage the ownership
   file { '/etc/redis.conf':
     ensure  => present,

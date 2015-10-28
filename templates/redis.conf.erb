@@ -203,6 +203,9 @@ dir /var/lib/redis/
 #    and resynchronize with them.
 #
 # slaveof <masterip> <masterport>
+<% if @slaveof -%>
+slaveof <%= @slaveof %> 6379
+<% end -%>
 
 # If the master is password protected (using the "requirepass" configuration
 # directive below) it is possible to tell the slave to authenticate before

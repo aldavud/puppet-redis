@@ -21,9 +21,5 @@ fi
 ${redis_cli} config set <%= k %> "<%= v %>"
 <% end -%>
 
-<% if @slaveof -%>
-${redis_cli} config set slaveof "<%= @slaveof %>" 6379
-<% end -%>
-
 # Force a rewrite to persist these settings
 ${redis_cli} config rewrite

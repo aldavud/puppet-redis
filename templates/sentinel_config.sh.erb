@@ -14,14 +14,12 @@ then
   exit
 fi
 
-<% if @redis_clusters.respond_to?(:key) -%>
-<%   @redis_clusters.each_key { |k| -%>
-${sentinel_cli} sentinel  monitor <%= k %> <%= @redis_clusters[k]['master_ip'] %> 6379 2 
-<%     if @redis_clusters[k]['down_after'] -%>
+<% @redis_clusters.each_key do |k| -%>
+${sentinel_cli} sentinel  monitor <%= k %> <%= @redis_clusters[k]['master_ip'] %> 6379 2
+<%   if @redis_clusters[k]['down_after'] -%>
 ${sentinel_cli} sentinel set <%= k %> down-after-milliseconds <%= @redis_clusters[k]['down_after'] %>
-<%     end -%>
-<%     if @redis_clusters[k]['failover_timeout'] -%>
+<%   end -%>
+<%   if @redis_clusters[k]['failover_timeout'] -%>
 ${sentinel_cli} sentinel set <%= k %> failover-timeout <%= @redis_clusters[k]['failover_timeout'] %>
-<%     end -%>
-<%   } -%>
+<%   end -%>
 <% end -%>

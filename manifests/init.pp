@@ -34,6 +34,12 @@ class redis (
   $version            = 'installed',
 ) {
 
+  if !member(any2array($bind),'127.0.0.1') {
+    $real_bind = join(concat(any2array($bind),'127.0.0.1'),' ')
+  } else {
+    $real_bind = $bind
+  }
+
   # Install the redis package
   ensure_packages(['redis'], { 'ensure' => $version })
 

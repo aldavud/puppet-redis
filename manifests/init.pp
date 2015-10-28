@@ -6,16 +6,16 @@
 #
 # $config: A hash of Redis config options to apply at runtime
 # $manage_persistence: Boolean flag for including the redis::persist class
-# $slaveof: IP address of the initial master Redis server 
-# $version: The package version of Redis you want to install 
 #
 # === Examples
 #
-# $config_hash = { 'dir' => '/pub/redis', 'maxmemory' => '1073741824' }
+# $config_hash = {
+#   'slaveof'   => '192.168.33.10',
+#   'dir'       => '/pub/redis',
+#   'maxmemory' => '1073741824' }
 #
 # class { redis:
 #   config  => $config_hash
-#   slaveof => '192.168.33.10'
 # }
 #
 # === Authors
@@ -25,7 +25,6 @@
 class redis (
   $config             = {},
   $manage_persistence = false,
-  $slaveof            = undef,
   $version            = 'installed',
 ) {
 
@@ -40,26 +39,6 @@ class redis (
     require => Package['redis'],
   }
 
-  # Lay down intermediate config file and copy it in with a 'cp' exec resource.
-  # Redis rewrites its config file with additional state information so we only
-  # want to do this the first time redis starts so we can at least get it 
-  # daemonized and assign a master node if applicable.
-  file { '/etc/redis.conf.puppet':
-    ensure  => present,
-    owner   => redis,
-    group   => root,
-    mode    => '0644',
-    content => template('redis/redis.conf.erb'),
-    require => Package['redis'],
-    notify  => Exec['cp_redis_config'],
-  }
-
-  exec { 'cp_redis_config':
-    command     => '/bin/cp -p /etc/redis.conf.puppet /etc/redis.conf',
-    refreshonly => true,
-    notify      => Service[redis],
-  }
-
   # Run it!
   service { 'redis':
     ensure     => running,
@@ -69,7 +48,7 @@ class redis (
     require    => Package['redis'],
   }
 
-  # Lay down the configuration script,  Content based on the config hash.
+  # Lay down the configuration script, content based on the config hash.
   $config_script = '/usr/local/bin/redis_config.sh'
 
   file { $config_script:

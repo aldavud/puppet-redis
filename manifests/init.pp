@@ -54,7 +54,7 @@ class redis (
   exec { 'cp_redis_config':
     command     => '/bin/cp -p /etc/redis.conf.puppet /etc/redis.conf',
     refreshonly => true,
-    notify      => Service[redis],
+    notify      => Service['redis'],
   }
 
   # Declare /etc/redis.conf so that we can manage the ownership

@@ -62,6 +62,7 @@ class redis::sentinel (
 
   # Run it!
   service { 'sentinel':
+    name       => 'redis-sentinel',
     ensure     => running,
     enable     => true,
     hasrestart => true,

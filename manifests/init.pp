@@ -49,7 +49,7 @@ class redis (
     owner   => redis,
     group   => root,
     mode    => '0644',
-    content => template('redis/redis.conf.puppet.erb'),
+    content => template('redis/redis.conf.erb'),
     require => Package['redis'],
     notify  => Exec['cp_redis_config'],
   }
@@ -81,8 +81,8 @@ class redis (
     require => Package['redis'],
     notify  => Exec['configure_redis'],
   }
-    
-  # Apply the configuration. 
+
+  # Apply the configuration.
   exec { 'configure_redis':
     command     => $config_script,
     refreshonly => true,

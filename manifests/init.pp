@@ -37,17 +37,6 @@ class redis (
   # Install the redis package
   ensure_packages(['redis'], { 'ensure' => $version })
 
-  # Define the data directory with proper ownership if provided
-  if ! empty($config['dir']) {
-    file { $config['dir']:
-      ensure  => directory,
-      owner   => 'redis',
-      group   => 'redis',
-      require => Package['redis'],
-      before  => Exec['configure_redis'],
-    }
-  }
-
   # Lay down intermediate config file and copy it in with a 'cp' exec resource.
   # Redis rewrites its config file with additional state information so we only
   # want to do this the first time redis starts so we can at least get it 

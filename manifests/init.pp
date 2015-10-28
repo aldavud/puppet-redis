@@ -18,7 +18,7 @@
 #
 # class { redis:
 #   config  => $config_hash,
-#   bind    => '10.0.0.2 127.0.0.1'
+#   bind    => ['10.0.0.2','127.0.0.1']
 #   slaveof => '10.0.0.1',
 # }
 #

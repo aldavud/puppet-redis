@@ -4,8 +4,9 @@
 #
 # === Parameters
 #
-# $redis_clusters - This is a hash that defines the redis clusters
+# $redis_clusters: This is a hash that defines the redis clusters
 # that sentinel should watch.
+# $version: The package version of Redis you want to install
 #
 # === Examples
 #
@@ -13,13 +14,13 @@
 #
 # redis::sentinel::redis_clusters:
 #  'cluster1':
-#    master_ip: '192.168.33.51'
+#    master_ip: '10.0.0.1'
 #    quorum: 2
 #    down_after: 30000
 #    failover_timeout: 180000
 #    parallel_syncs: 1
 #  'cluster2':
-#    master_ip: '192.168.33.54'
+#    master_ip: '10.0.1.1'
 #    quorum: 4
 #    down_after: 30000
 #    failover_timeout: 180000
@@ -30,8 +31,8 @@
 # Dan Sajner <dsajner@covermymeds.com>
 #
 class redis::sentinel (
-  $version        = 'installed',
   $redis_clusters = undef,
+  $version        = 'installed',
 ) {
 
   # Install the redis package
@@ -61,7 +62,7 @@ class redis::sentinel (
   exec { 'cp_sentinel_conf':
     command     => '/bin/cp /etc/redis-sentinel.conf.puppet /etc/redis-sentinel.conf',
     refreshonly => true,
-    notify      => Service[sentinel],
+    notify      => Service['redis-sentinel'],
   }
 
   # Run it!

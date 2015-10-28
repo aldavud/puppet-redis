@@ -5,7 +5,10 @@
 # === Parameters
 #
 # $config: A hash of Redis config options to apply at runtime
+# $bind: IP addresses to bind to
+# $slaveof: IP address of the initial master Redis server
 # $manage_persistence: Boolean flag for including the redis::persist class
+# $version: The package version of Redis you want to install
 #
 # === Examples
 #
@@ -15,7 +18,8 @@
 #
 # class { redis:
 #   config  => $config_hash,
-#   slaveof => '192.168.33.10',
+#   bind    => '10.0.0.2 127.0.0.1'
+#   slaveof => '10.0.0.1',
 # }
 #
 # === Authors
@@ -24,6 +28,7 @@
 #
 class redis (
   $config             = {},
+  $bind               = '127.0.0.1',
   $slaveof            = undef,
   $manage_persistence = false,
   $version            = 'installed',
@@ -31,6 +36,37 @@ class redis (
 
   # Install the redis package
   ensure_packages(['redis'], { 'ensure' => $version })
+
+  # Define the data directory with proper ownership if provided
+  if ! empty($config['dir']) {
+    file { $config['dir']:
+      ensure  => directory,
+      owner   => 'redis',
+      group   => 'redis',
+      require => Package['redis'],
+      before  => Exec['configure_redis'],
+    }
+  }
+
+  # Lay down intermediate config file and copy it in with a 'cp' exec resource.
+  # Redis rewrites its config file with additional state information so we only
+  # want to do this the first time redis starts so we can at least get it 
+  # daemonized and assign a master node if applicable.
+  file { '/etc/redis.conf.puppet':
+    ensure  => present,
+    owner   => 'redis',
+    group   => 'root',
+    mode    => '0644',
+    content => template('redis/redis.conf.erb'),
+    require => Package['redis'],
+    notify  => Exec['cp_redis_config'],
+  }
+
+  exec { 'cp_redis_config':
+    command     => '/bin/cp -p /etc/redis.conf.puppet /etc/redis.conf',
+    refreshonly => true,
+    notify      => Service[redis],
+  }
 
   # Declare /etc/redis.conf so that we can manage the ownership
   file { '/etc/redis.conf':

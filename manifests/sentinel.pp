@@ -38,11 +38,30 @@ class redis::sentinel (
   ensure_packages(['redis'], { 'ensure' => $version })
 
   # Declare /etc/sentinel.conf here so we can manage ownership
-  file { '/etc/sentinel.conf':
+  file { '/etc/redis-sentinel.conf':
     ensure  => present,
     owner   => 'redis',
     group   => 'root',
     require => Package['redis'],
+  }
+
+  # Sentinel rewrites its config file so we lay this one down initially.
+  # This allows us to manage the configuration file upon installation
+  # and then never again.
+  file { '/etc/redis-sentinel.conf.puppet':
+    ensure  => present,
+    owner   => 'redis',
+    group   => 'root',
+    mode    => '0644',
+    content => template('redis/redis-sentinel.conf.erb'),
+    require => Package['redis'],
+    notify  => Exec['cp_sentinel_conf'],
+  }
+
+  exec { 'cp_sentinel_conf':
+    command     => '/bin/cp /etc/redis-sentinel.conf.puppet /etc/redis-sentinel.conf',
+    refreshonly => true,
+    notify      => Service[sentinel],
   }
 
   # Run it!

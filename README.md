@@ -15,12 +15,15 @@ class { 'redis': }
 
 Install Redis and configure as a slave.  Manage some other configuration including persistence.
 ```
-$config_hash = { 'dir' => '/pub/redis', 'maxmemory' => '1073741824' }
 
-class { 'redis':
-  config             => $config_hash,
+$config_hash = {
+  'slaveof'   => '192.168.33.10',
+  'dir'       => '/pub/redis',
+  'maxmemory' => '1073741824' }
+
+class { redis:
+  config             => $config_hash
   manage_persistence => true,
-  slaveof            => '192.168.33.10',
 }
 ```
 

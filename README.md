@@ -17,27 +17,29 @@ Install Redis and configure as a slave.  Manage some other configuration includi
 ```
 
 $config_hash = {
-  'slaveof'   => '192.168.33.10',
   'dir'       => '/pub/redis',
   'maxmemory' => '1073741824' }
 
-class { redis:
-  config             => $config_hash
+class { 'redis':
+  config             => $config_hash,
+  slaveof            => '192.168.33.10',
   manage_persistence => true,
 }
 ```
 
 Install and configure Sentinel to manage 2 independent Redis Master/Slave setups. (Sentinel discovers the other slaves.)
 ```
-$redis_clusters = { 'cluster1' => { 'master_ip' => '192.168.33.51',
-                                    'down_after' => '30000',
+$redis_clusters = { 'cluster1' => { 'master_ip'        => '192.168.33.51',
+                                    'quorum'           => 2,
+                                    'down_after'       => '30000',
                                     'failover_timeout' => '180000' },
-                    'cluster2' => { 'master_ip' => '192.168.33.54',
-                                    'down_after' => '30000',
+                    'cluster2' => { 'master_ip'        => '192.168.33.54',
+                                    'quorum'           => 4,
+                                    'down_after'       => '30000',
                                     'failover_timeout' => '180000' },
                   }
 
-class { 'sentinel':
+class { 'redis::sentinel':
   redis_clusters => $redis_clusters,
 }
 ```

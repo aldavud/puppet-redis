@@ -12,14 +12,18 @@
 # class { 'redis::sentinel': }
 #
 # redis::sentinel::redis_clusters:
-#  'claims':
+#  'cluster1':
 #    master_ip: '192.168.33.51'
+#    quorum: 2
 #    down_after: 30000
 #    failover_timeout: 180000
-#  'monkey':
+#    parallel_syncs: 1
+#  'cluster2':
 #    master_ip: '192.168.33.54'
+#    quorum: 4
 #    down_after: 30000
 #    failover_timeout: 180000
+#    parallel_syncs: 5
 #
 # === Authors
 #
@@ -42,8 +46,7 @@ class redis::sentinel (
   }
 
   # Run it!
-  service { 'sentinel':
-    name       => 'redis-sentinel',
+  service { 'redis-sentinel':
     ensure     => running,
     enable     => true,
     hasrestart => true,
@@ -68,7 +71,7 @@ class redis::sentinel (
   exec { 'configure_sentinel':
     command     => $config_script,
     refreshonly => true,
-    require     => [ Service['sentinel'], File[$config_script] ],
+    require     => [ Service['redis-sentinel'], File[$config_script] ],
   }
 
 }

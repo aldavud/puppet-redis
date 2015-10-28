@@ -10,12 +10,12 @@
 # === Examples
 #
 # $config_hash = {
-#   'slaveof'   => '192.168.33.10',
 #   'dir'       => '/pub/redis',
 #   'maxmemory' => '1073741824' }
 #
 # class { redis:
-#   config  => $config_hash
+#   config  => $config_hash,
+#   slaveof => '192.168.33.10',
 # }
 #
 # === Authors
@@ -24,6 +24,7 @@
 #
 class redis (
   $config             = {},
+  $slaveof            = undef,
   $manage_persistence = false,
   $version            = 'installed',
 ) {
